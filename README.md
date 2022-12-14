@@ -34,4 +34,70 @@ man dmidecode
 The script will help to get dmideocde output in to webpage / API response as a json response
 
 ## Code flow
-### func name : toJson
+```
+func name : toJson
+----------------------------------------------------------------------------------------------------------
+params:
+    command (array) : use can pass dmidecode command manualy
+
+vars:
+    response (array)
+    segmentIndex (int) : to avoid conflict if segments have same name : default = 0
+		innerSegmentName (string)
+		segmentName (string)
+    exec_command (string)
+  
+    dmidecode output (array) =  execute dmidecode command
+    
+    filtered output (array) = remove first four elements from output array
+    
+    unset old dimdecode output (no more need that array)
+    
+    loop filtered fOpt : foreach( rowLineNumber ,  line ) {
+    
+        if ( line start with "Handle" ) {
+
+            if ( segmentIndex = segmentName == fOpt[rowLineNumber + 1] + " " + segmentIndex ) {
+                $segmentIndex +1 
+            } else {
+                $segmentIndex = 0
+            }
+
+            segmentName = fOpt[rowLineNumber + 1] + " " + segmentIndex
+
+            skip loop from here
+        }
+        
+        // line will be like this -> ( key: value )
+        matches (array : [0 => line, 1 => key, 2=> value]) = preg match with "any: key"
+        
+        if ( matches found ) {
+            
+            innerSegmentName = null
+            responsep[segmentName][ matches[1] ] = matches[2]
+            
+        } else if ( line last char == ':' ) {
+        
+            // To handle multivalue segments
+        
+            innerSegmentName = remove ':' from line and set
+            response [segmentName][innerSegmentName] = []
+          
+        }
+        
+        if ( line first char == tab space and not empty innerSegmentName and innerSegmentName != current line ) {
+          
+            response[segmentName][innerSegmentName][] = line
+          
+        }
+        
+        
+    }
+    
+    print json encoded response
+        
+            
+
+```
+
+
