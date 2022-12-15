@@ -19,9 +19,9 @@ class DmiDecode {
 
 		exec($exec_command, $output, $rc);
 
-		//Remove first four line from shell output
+		//Remove first four elements and empty elements from shell output
 
-		$fOpt = array_slice($output, 4, -1);
+		$fOpt = array_filter(array_slice($output, 4, -1));
 		unset($output);
 
 		foreach ($fOpt as $key => $line) {
